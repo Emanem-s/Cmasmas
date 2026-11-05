@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PETSYNC - Plataforma Web</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --vet: #10b981;
+            --bg: #f3f4f6;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --border: #e5e7eb;
+        }
+
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Utilidades */
+        .card {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        h1,
+        h2,
+        h3 {
+            margin-top: 0;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        /* Botones y Formularios */
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            color: white;
+            transition: opacity 0.2s;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        .btn-client {
+            background: var(--primary);
+        }
+
+        .btn-vet {
+            background: var(--vet);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-main);
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 16px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+
+        /* Navbar Superior */
+        .navbar {
+            background: white;
+            padding: 16px 32px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .brand {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--text-main);
+            cursor: pointer;
+        }
+
+        /* Vista: Introducción (Landing) */
+        #view-intro {
+            min-height: calc(100vh - 70px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        .hero-text {
+            max-width: 800px;
+            margin-bottom: 60px;
+        }
+
+        .hero-text h1 {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .hero-text p {
+            font-size: 20px;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        .role-cards {
+            display: flex;
+            gap: 40px;
+        }
+
+        .role-card {
+            width: 300px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .role-card:hover {
+            transform: translateY(-5px);
+        }
+
+        /* Vista: Autenticación */
+        #view-auth {
+            min-height: calc(100vh - 70px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .auth-box {
+            width: 400px;
+        }
+
+        .tabs {
+            display: flex;
+            background: var(--bg);
+            border-radius: 8px;
+            margin-bottom: 24px;
+            padding: 4px;
+        }
+
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: bold;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+
+        .tab.active {
+            background: white;
+            color: var(--text-main);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Layout Principal (Dashboards) */
+        .dashboard-layout {
+            display: flex;
+            min-height: calc(100vh - 70px);
+        }
+
+        .sidebar {
+            width: 250px;
+            background: white;
+            border-right: 1px solid var(--border);
+            padding: 32px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .nav-item {
+            padding: 12px 16px;
+            border-radius: 8px;
+            color: var(--text-muted);
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .nav-item:hover {
+            background: var(--bg);
+            color: var(--text-main);
+        }
+
+        .nav-item.active-client {
+            background: #e0e7ff;
+            color: var(--primary);
+        }
+
+        .nav-item.active-vet {
+            background: #d1fae5;
+            color: var(--vet);
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+        }
+
+        /* Tablas de la web */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            padding: 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: #f9fafb;
+        }
+
+        .badge {
+            padding: 6px 12px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .badge-warning {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .badge-success {
+            background: #d1fae5;
+            color: #059669;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- BARRA DE NAVEGACIÓN GLOBAL -->
+    <nav class="navbar">
+        <div class="brand" style="font-size: 36px; font-weight: bold;" onclick="showView('view-intro')">PETSYNC</div>
+        <div id="user-menu" class="hidden">
+            <span id="user-name" style="margin-right: 20px; font-weight: 500;"></span>
+            <button class="btn btn-outline" style="padding: 8px 16px;" onclick="showView('view-intro')">Cerrar
+                Sesión</button>
+        </div>
+    </nav>
+
+    <!-- 1. PANTALLA DE INICIO (LANDING PAGE) -->
+    <div id="view-intro">
+        <div class="hero-text text-center">
+            <h1>Cuidando a tus mascotas con tecnología</h1>
+            <p>Una plataforma web diseñada para ayudar a las clínicas veterinarias a dar el salto digital, organizando
+                historiales, evitando pérdidas de documentos y conectando directamente con los dueños de mascotas.</p>
+        </div>
+
+        <div class="role-cards">
+            <div class="card role-card" onclick="goToAuth('client')">
+                <div style="font-size: 48px; margin-bottom: 16px;">🐾</div>
+                <h2>Soy Cliente</h2>
+                <p style="color: var(--text-muted); margin-bottom: 24px;">Agenda citas y revisa el expediente de tus
+                    mascotas.</p>
+                <button class="btn btn-client" style="width: 100%;">Acceso Dueños</button>
+            </div>
+
+            <div class="card role-card" onclick="goToAuth('vet')">
+                <div style="font-size: 48px; margin-bottom: 16px;">⚕️</div>
+                <h2>Soy Veterinario</h2>
+                <p style="color: var(--text-muted); margin-bottom: 24px;">Gestiona consultas, historiales y la sala de
+                    espera.</p>
+                <button class="btn btn-vet" style="width: 100%;">Acceso Clínica</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. PANTALLA DE AUTENTICACIÓN -->
+    <div id="view-auth" class="hidden">
+        <div class="card auth-box">
+            <button class="btn btn-outline" style="padding: 8px; margin-bottom: 24px; border: none; font-size: 24px;"
+                onclick="showView('view-intro')">←</button>
+            <h2 id="auth-title" class="text-center" style="margin-bottom: 24px;">Acceso</h2>
+
+            <div class="tabs">
+                <div class="tab active" id="tab-login" onclick="switchAuthTab('login')">Iniciar Sesión</div>
+                <div class="tab" id="tab-register" onclick="switchAuthTab('register')">Registrarse</div>
+
+
+            </div>
+
+            <form id="auth-form">
+                <input type="email" id="auth-email" placeholder="Correo electrónico" aria-label="Correo electrónico"
+                    autocomplete="email" required>
+                <input type="password" id="auth-password" placeholder="Contraseña" aria-label="Contraseña"
+                    autocomplete="current-password" required>
+                <input type="text" id="auth-name" placeholder="Nombre completo" aria-label="Nombre completo"
+                    autocomplete="name" class="hidden">
+                <input type="text" id="vet-id" placeholder="Identificador de Veterinario"
+                    aria-label="Identificador de Veterinario" autocomplete="off" class="hidden">
+                <p id="auth-message" role="status" aria-live="polite"></p>
+                <button id="auth-btn" class="btn" style="width: 100%; margin-top: 16px;" type="submit">Entrar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 3. DASHBOARD: CLIENTE -->
+    <div id="view-client" class="dashboard-layout hidden">
+        <div class="sidebar">
+            <div class="nav-item active-client">📅 Mis Citas</div>
+            <div class="nav-item">🐾 Expedientes</div>
+            <div class="nav-item">👤 Mi Perfil</div>
+        </div>
+
+        <div class="main-content">
+            <h1 style="margin-bottom: 32px;">Panel de Mascota</h1>
+
+            <div class="grid-2">
+                <!-- Agendar -->
+                <div class="card">
+                    <h2>Agendar Nueva Cita</h2>
+                    <form id="appointment-form">
+                        <label for="appointment-pet"
+                            style="display: block; margin-bottom: 8px; font-weight: 500;">Selecciona tu mascota</label>
+                        <select id="appointment-pet" required>
+                            <option>(Canino)</option>
+                            <option>(Felino)</option>
+                        </select>
+
+                        <label for="appointment-date"
+                            style="display: block; margin-bottom: 8px; font-weight: 500;">Fecha y Hora</label>
+                        <input id="appointment-date" type="datetime-local" required>
+
+                        <label for="appointment-reason"
+                            style="display: block; margin-bottom: 8px; font-weight: 500;">Motivo de la visita</label>
+                        <input id="appointment-reason" type="text" placeholder="Ej. Vacunación anual" maxlength="120"
+                            required>
+
+                        <p id="appointment-message" role="status" aria-live="polite"></p>
+                        <button class="btn btn-client" style="width: 100%;" type="submit">Confirmar Cita</button>
+                    </form>
+                </div>
+
+                <!-- Próximas Citas -->
+                <div class="card">
+                    <h2>Próximas Citas</h2>
+                    <div id="appointments-list" aria-live="polite">
+                        <p style="color: var(--text-muted);">Aún no tienes citas agendadas.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. DASHBOARD: VETERINARIO -->
+    <div id="view-vet" class="dashboard-layout hidden">
+        <div class="sidebar">
+            <div class="nav-item active-vet">📊 Panel Principal</div>
+            <div class="nav-item">📝 Nuevo Registro</div>
+            <div class="nav-item">🗂️ Base de Pacientes</div>
+            <div class="nav-item">⚙️ Configuración</div>
+        </div>
+
+        <div class="main-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px;">
+                <h1>Panel Médico</h1>
+                <button class="btn btn-vet">+ Registrar Paciente Urgente</button>
+            </div>
+
+            <!-- Resumen Estadístico -->
+            <div class="grid-2" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 32px;">
+                <div class="card text-center">
+                    <h2 style="font-size: 36px; margin: 0; color: var(--vet);">12</h2>
+                    <p style="color: var(--text-muted); margin: 0;">Pacientes Hoy</p>
+                </div>
+                <div class="card text-center">
+                    <h2 style="font-size: 36px; margin: 0; color: #d97706;">3</h2>
+                    <p style="color: var(--text-muted); margin: 0;">En Sala de Espera</p>
+                </div>
+                <div class="card text-center">
+                    <h2 style="font-size: 36px; margin: 0; color: var(--primary);">8</h2>
+                    <p style="color: var(--text-muted); margin: 0;">Altas Emitidas</p>
+                </div>
+            </div>
+
+            <!-- Agenda del Día -->
+            <div class="card">
+                <h2>Agenda de Hoy</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Hora</th>
+                            <th>Paciente</th>
+                            <th>Motivo</th>
+                            <th>Dueño</th>
+                            <th>Estado</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>10:00 AM</td>
+                            <td><strong>Firulais</strong> (Canino)</td>
+                            <td>Revisión General</td>
+                            <td>Juan Pérez</td>
+                            <td><span class="badge badge-warning">En Espera</span></td>
+                            <td><button class="btn btn-outline"
+                                    style="padding: 4px 12px; font-size: 12px;">Atender</button></td>
+                        </tr>
+                        <tr>
+                            <td>11:30 AM</td>
+                            <td><strong>Michi</strong> (Felino)</td>
+                            <td>Vacunación</td>
+                            <td>Ana López</td>
+                            <td><span class="badge badge-success">Alta</span></td>
+                            <td><button class="btn btn-outline" style="padding: 4px 12px; font-size: 12px;">Ver
+                                    Historial</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="LoginDueños.js" defer></script>
+    <script src="LoginVeterinario.js" defer></script>
+    <script src="Mascota.js" defer></script>
+</body>
+
+</html>
