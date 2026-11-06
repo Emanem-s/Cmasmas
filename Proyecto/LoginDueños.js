@@ -60,6 +60,7 @@ function goToAuth(role) {
 
 function switchAuthTab(tab) {
     authMode = currentRole === 'vet' ? 'login' : tab === 'register' ? 'register' : 'login';
+    clearAuthFields();
     document.getElementById('auth-title').innerText =
         currentRole === 'vet' ? 'Acceso Veterinario' : 'Acceso Dueños';
     document.getElementById('auth-welcome-kicker').textContent =
@@ -183,7 +184,7 @@ async function loginOwner() {
     document.getElementById('view-client').dataset.ownerEmail = owner.email;
     document.getElementById('view-client').dataset.ownerName = owner.name;
     document.getElementById('view-client').dataset.ownerPhone = owner.phone || '';
-    passwordInput.value = '';
+    clearAuthFields();
     showView('view-client');
 }
 
@@ -212,6 +213,13 @@ function readOwnerAccounts() {
 
 function normalizeOwnerEmail(email) {
     return email.trim().toLowerCase();
+}
+
+function clearAuthFields() {
+    emailInput.value = '';
+    passwordInput.value = '';
+    nameInput.value = '';
+    vetIdInput.value = '';
 }
 
 async function hashPassword(password, salt) {
