@@ -16,6 +16,12 @@ const LOGEOS = [
         email: 'alan.gabrel@petsync.com',
         password: 'Alanvasvet_2026',
         id: '2520'
+    },
+    {
+        name: 'Ruben Alejandro',
+        email: 'ruben.alejandro@petsync.com',
+        password: 'Rubenvet_2026',
+        id: '2521'
     }
 ];
 
