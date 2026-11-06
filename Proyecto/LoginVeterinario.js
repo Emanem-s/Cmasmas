@@ -10,12 +10,22 @@ const LOGEOS = [
         email: 'tadeo.casados@petsync.com',
         password: 'Tadeovet_2026',
         id: '2519'
+    },
+    {
+        name: 'Alan Gabrel',
+        email: 'alan.gabrel@petsync.com',
+        password: 'Alanvasvet_2026',
+        id: '2520'
     }
 ];
 
 const veterinarianForm = document.getElementById('auth-form');
 
 veterinarianForm.addEventListener('submit', handleVeterinarianLogin);
+
+function getVeterinarianDirectory() {
+    return LOGEOS.map(({ name, email }) => ({ name, email }));
+}
 
 function handleVeterinarianLogin(event) {
     if (document.getElementById('view-auth').dataset.role !== 'vet') {
@@ -43,6 +53,8 @@ function handleVeterinarianLogin(event) {
     }
 
     document.getElementById('user-name').innerText = veterinarian.name;
+    document.getElementById('view-vet').dataset.veterinarianEmail = veterinarian.email;
+    document.getElementById('view-vet').dataset.veterinarianName = veterinarian.name;
     document.getElementById('auth-password').value = '';
     document.getElementById('auth-email').value = '';
     document.getElementById('vet-id').value = '';

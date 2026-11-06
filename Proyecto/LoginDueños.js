@@ -18,10 +18,34 @@ function showView(viewId) {
     document.querySelectorAll('body > div').forEach(div => div.classList.add('hidden'));
     document.getElementById(viewId).classList.remove('hidden');
 
+    if (viewId !== 'view-client') {
+        document.getElementById('view-client').dataset.ownerEmail = '';
+        document.getElementById('view-client').dataset.ownerName = '';
+        document.getElementById('view-client').dataset.ownerPhone = '';
+    }
+    if (viewId !== 'view-vet') {
+        document.getElementById('view-vet').dataset.veterinarianEmail = '';
+        document.getElementById('view-vet').dataset.veterinarianName = '';
+    }
+
     if (viewId === 'view-intro' || viewId === 'view-auth') {
         document.getElementById('user-menu').classList.add('hidden');
     } else {
         document.getElementById('user-menu').classList.remove('hidden');
+    }
+
+    if (viewId === 'view-vet') {
+        if (typeof refreshAppointments === 'function') {
+            refreshAppointments();
+        }
+    }
+    if (viewId === 'view-client') {
+        if (typeof switchTab === 'function') {
+            switchTab('client', 'citas');
+        }
+        if (typeof loadOwnerProfile === 'function') {
+            loadOwnerProfile();
+        }
     }
 }
 
@@ -38,6 +62,22 @@ function switchAuthTab(tab) {
     authMode = currentRole === 'vet' ? 'login' : tab === 'register' ? 'register' : 'login';
     document.getElementById('auth-title').innerText =
         currentRole === 'vet' ? 'Acceso Veterinario' : 'Acceso Dueños';
+    document.getElementById('auth-welcome-kicker').textContent =
+        currentRole === 'vet' ? 'Tu clínica, mejor conectada' : 'Un espacio hecho para su bienestar';
+    document.getElementById('auth-welcome-title').textContent =
+        currentRole === 'vet'
+            ? 'Todo listo para cuidar a tus pacientes.'
+            : 'Cada mascota merece un cuidado extraordinario.';
+    document.getElementById('auth-welcome-description').textContent =
+        currentRole === 'vet'
+            ? 'Gestiona pacientes, responde citas y consulta expedientes desde el espacio de tu clínica.'
+            : 'Ten sus citas y su historial de salud siempre organizados en un espacio sencillo y seguro.';
+    document.getElementById('auth-form-description').textContent =
+        authMode === 'register'
+            ? 'Crea tu cuenta para empezar a organizar el cuidado de tus mascotas.'
+            : currentRole === 'vet'
+                ? 'Ingresa tus credenciales de clínica para continuar.'
+                : 'Ingresa a tu cuenta para continuar.';
     document.getElementById('tab-login').classList.toggle('active', authMode === 'login');
     document.getElementById('tab-register').classList.toggle('active', authMode === 'register');
     document.getElementById('tab-register').classList.toggle('hidden', currentRole === 'vet');
@@ -77,7 +117,7 @@ async function handleAuthSubmit(event) {
 
 async function registerOwner() {
     const name = nameInput.value.trim();
-    const email = emailInput.value.trim().toLowerCase();
+    const email = normalizeOwnerEmail(emailInput.value);
     const password = passwordInput.value;
 
     if (name.length === 0) {
@@ -90,7 +130,7 @@ async function registerOwner() {
     }
 
     const owners = readOwnerAccounts();
-    if (owners.some(owner => owner.email === email)) {
+    if (owners.some(owner => normalizeOwnerEmail(owner.email) === email)) {
         setAuthMessage('Ya existe una cuenta con ese correo electrónico.', true);
         return;
     }
@@ -113,9 +153,20 @@ async function registerOwner() {
 }
 
 async function loginOwner() {
-    const email = emailInput.value.trim().toLowerCase();
+    const email = normalizeOwnerEmail(emailInput.value);
     const password = passwordInput.value;
-    const owner = readOwnerAccounts().find(account => account.email === email);
+    const matchingOwners = readOwnerAccounts().filter(account =>
+        normalizeOwnerEmail(account.email) === email
+    );
+
+    if (matchingOwners.length > 1) {
+        setAuthMessage(
+            'Hay más de una cuenta registrada con ese correo. Contacta con soporte para resolverlo.',
+            true
+        );
+        return;
+    }
+    const owner = matchingOwners[0];
 
     if (!owner || !owner.salt || !owner.passwordHash) {
         setAuthMessage('Correo o contraseña incorrectos.', true);
@@ -129,6 +180,9 @@ async function loginOwner() {
     }
 
     document.getElementById('user-name').innerText = `Hola, ${owner.name}`;
+    document.getElementById('view-client').dataset.ownerEmail = owner.email;
+    document.getElementById('view-client').dataset.ownerName = owner.name;
+    document.getElementById('view-client').dataset.ownerPhone = owner.phone || '';
     passwordInput.value = '';
     showView('view-client');
 }
@@ -145,10 +199,19 @@ function readOwnerAccounts() {
     } catch {
         throw new Error('Los datos de las cuentas guardadas están dañados.');
     }
-    if (!Array.isArray(owners)) {
+    if (!Array.isArray(owners) || owners.some(owner =>
+        !owner ||
+        typeof owner.name !== 'string' ||
+        typeof owner.email !== 'string' ||
+        !owner.email.trim()
+    )) {
         throw new Error('Los datos de las cuentas guardadas no tienen un formato válido.');
     }
     return owners;
+}
+
+function normalizeOwnerEmail(email) {
+    return email.trim().toLowerCase();
 }
 
 async function hashPassword(password, salt) {
